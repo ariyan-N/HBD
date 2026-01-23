@@ -7,7 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <link rel="stylesheet" href="./file/default.css">
-
 <script src="./file/jquery.min.js"></script>
 <script src="./file/jscex.min.js"></script>
 <script src="./file/jscex-parser.js"></script>
@@ -22,108 +21,133 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
-    background: #ffe;
-    overflow: hidden;
-}
-
-#wrap {
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    background: #fff;
 }
 
-canvas {
+/* Main container */
+#main, #wrap {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Canvas fullscreen */
+#canvas {
+    width: 100%;
+    height: 100%;
     display: block;
-    width: 100vw;
-    height: 100vh;
 }
 
-#text, #clock-box {
+/* Text center top */
+#text {
     position: absolute;
-    z-index: 10;
+    top: 6%;
     width: 100%;
     text-align: center;
 }
 
-#text {
-    top: 10%;
+#code span.say {
+    display: block;
+    font-size: 1rem;
+    margin: 4px 0;
 }
 
+/* Clock bottom center */
 #clock-box {
-    bottom: 10%;
-    font-size: 14px;
+    position: absolute;
+    bottom: 6%;
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
 }
 </style>
 
+<script>
+function playAudio() {
+    document.getElementById("myAudio").play();
+}
+</script>
 </head>
 
 <body>
+<div id="main">
+    <audio autoplay id="myAudio">
+        <source src="aud.mp3" type="audio/mp3">
+    </audio>
 
-<audio id="myAudio" preload="auto">
-    <source src="aud.mp3" type="audio/mp3">
-</audio>
-
-<div id="wrap">
-    <div id="text">
-        <div id="code" style="display:none;">
-            <span class="say">My beautiful wife 💞</span><br>
-            <span class="say">Happy Birthday 🎈</span><br>
-            <span class="say">May Allah bless you 🍀</span><br>
-            <span class="say">And give u many happiness 💕</span><br>
-            <span class="say">I loved you ❤️</span><br>
-            <span class="say">And I will always love u 🥺 ❤️</span><br>
-            <span class="say">Hope u have a great day today ❤️😘</span><br>
+    <div id="wrap">
+        <div id="text">
+            <div id="code" style="display:none;">
+                <span class="say">My beautiful wife 💞</span>
+                <span class="say">Happy Birthday 🎈</span>
+                <span class="say">May Allah bless you 🍀</span>
+                <span class="say">And give u many happiness 💕</span>
+                <span class="say">I loved you ❤️</span>
+                <span class="say">And I will always love u 🥺 ❤️</span>
+                <span class="say">Hope u have a great day today ❤️😘</span>
+            </div>
         </div>
-    </div>
 
-    <div id="clock-box">
-        <span id="clock">577 days 0 hours 0 minutes 0 seconds</span>
-    </div>
+        <div id="clock-box">
+            <span id="clock">577 days 0 hours 0 minutes 0 seconds</span>
+        </div>
 
-    <canvas id="canvas"></canvas>
+        <canvas id="canvas"></canvas>
+    </div>
 </div>
 
 <script>
 (function () {
 
     var canvas = $('#canvas');
-    var audio = document.getElementById("myAudio");
+    var width = window.innerWidth;
+    var height = window.innerHeight;
 
-    function resizeCanvas() {
-        canvas.attr("width", window.innerWidth);
-        canvas.attr("height", window.innerHeight);
-    }
+    canvas.attr("width", width);
+    canvas.attr("height", height);
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    var width = canvas[0].width;
-    var height = canvas[0].height;
-
+    // 🔴 CENTERED seed (click me point)
     var opts = {
-        seed: { x: width / 2, color: "rgb(190,26,37)", scale: 2 },
-        branch: [[535,680,570,250,500,200,30,100]],
-        bloom: { num: 500, width: width, height: height },
-        footer: { width: width, height: 5, speed: 10 }
+        seed: {
+            x: width / 2,
+            y: height / 2,
+            color: "rgb(190, 26, 37)",
+            scale: 2
+        },
+        branch: [
+            [width/2, height, width/2+20, height/2+50, width/2-60, height/2, 30, 100]
+        ],
+        bloom: {
+            num: 500,
+            width: width,
+            height: height
+        },
+        footer: {
+            width: width,
+            height: 5,
+            speed: 10
+        }
     };
 
     var tree = new Tree(canvas[0], width, height, opts);
     var seed = tree.seed;
     var foot = tree.footer;
-    var hold = true;
+    var hold = 1;
 
-    function unlock(e) {
-        e.preventDefault();
+    canvas.on("click", function (e) {
+        playAudio();
+        var offset = canvas.offset();
+        var x = e.pageX - offset.left;
+        var y = e.pageY - offset.top;
 
-        if (hold) {
-            audio.play().catch(()=>{});
-            hold = false;
-            canvas.off("click touchstart");
+        if (seed.hover(x, y)) {
+            hold = 0;
+            canvas.removeClass("hand");
         }
-    }
-
-    // 🔥 CLICK + TOUCH FIX
-    canvas.on("click touchstart", unlock);
+    });
 
     var seedAnimate = eval(Jscex.compile("async", function () {
         seed.draw();
