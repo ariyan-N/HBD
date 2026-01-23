@@ -27,30 +27,31 @@ html, body {
     background: #000;
 }
 
-/* 🎥 Background video (PATH FIXED) */
+/* 🎥 BACKGROUND VIDEO — HARD FIX */
 #bg-video {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     object-fit: cover;
-    opacity: 0.28;
-    z-index: -2;
+    opacity: 0.18;   /* 👈 lower opacity */
+    z-index: -10;
 }
 
 /* overlay */
 #overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255,255,255,0.35);
-    z-index: -1;
+    background: rgba(255,255,255,0.45);
+    z-index: -5;
 }
 
 #main, #wrap {
     width: 100%;
     height: 100%;
     position: relative;
+    z-index: 1;
 }
 
 #canvas {
@@ -59,7 +60,7 @@ html, body {
     display: block;
 }
 
-/* 💌 SMS CARD — NEW PREMIUM STYLE */
+/* 💌 SMS CARD */
 #wish-box {
     position: absolute;
     top: 7%;
@@ -73,7 +74,7 @@ html, body {
     background: linear-gradient(
         135deg,
         rgba(255,255,255,0.85),
-        rgba(255,240,245,0.9)
+        rgba(255,230,240,0.9)
     );
 
     border-radius: 18px;
@@ -92,7 +93,6 @@ html, body {
     color: #222;
 }
 
-/* first line special */
 #wish-box span:first-child {
     font-size: 1.1rem;
     font-weight: 600;
@@ -110,30 +110,32 @@ html, body {
     color: #222;
 }
 </style>
-
-<script>
-function playAudio() {
-    document.getElementById("myAudio").play();
-}
-</script>
 </head>
 
 <body>
 
-<!-- 🎥 video background (FIXED PATH) -->
-<video id="bg-video" autoplay muted loop playsinline webkit-playsinline>
+<!-- 🎥 BACKGROUND VIDEO -->
+<video
+    id="bg-video"
+    muted
+    loop
+    playsinline
+    webkit-playsinline
+    preload="auto"
+>
     <source src="./main/video.mp4" type="video/mp4">
 </video>
+
 <div id="overlay"></div>
 
 <div id="main">
-<audio autoplay id="myAudio">
+<audio id="myAudio">
     <source src="aud.mp3" type="audio/mp3">
 </audio>
 
 <div id="wrap">
 
-<!-- 💌 Wish text (CONTENT SAME) -->
+<!-- 💌 Wish -->
 <div id="wish-box">
     <span>My beautiful wife 💞</span>
     <span>Happy Birthday 🎈</span>
@@ -143,7 +145,7 @@ function playAudio() {
     <span>I will always love you 🥺❤️</span>
 </div>
 
-<!-- ⏱ clock -->
+<!-- ⏱ Clock -->
 <div id="clock-box">
     <span id="clock">577 days 0 hours 0 minutes 0 seconds</span>
 </div>
@@ -151,6 +153,27 @@ function playAudio() {
 <canvas id="canvas"></canvas>
 </div>
 </div>
+
+<script>
+/* 🔊 audio + 🎥 video force play on first touch */
+function forcePlayMedia() {
+    const v = document.getElementById("bg-video");
+    const a = document.getElementById("myAudio");
+
+    if (v && v.paused) {
+        v.play().catch(()=>{});
+    }
+    if (a && a.paused) {
+        a.play().catch(()=>{});
+    }
+
+    document.removeEventListener("click", forcePlayMedia);
+    document.removeEventListener("touchstart", forcePlayMedia);
+}
+
+document.addEventListener("click", forcePlayMedia);
+document.addEventListener("touchstart", forcePlayMedia);
+</script>
 
 <script>
 (function () {
@@ -194,9 +217,7 @@ function playAudio() {
     var foot = tree.footer;
     var hold = 1;
 
-    /* 🔥 BIG invisible click area (unchanged) */
     canvas.on("click", function () {
-        playAudio();
         hold = 0;
     });
 
