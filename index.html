@@ -27,16 +27,15 @@ html, body {
     background: #000;
 }
 
-/* 🎥 BACKGROUND VIDEO — HARD FIX */
+/* 🎥 Background video */
 #bg-video {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    opacity: 0.18;   /* 👈 lower opacity */
-    z-index: -10;
+    opacity: 0.22;
+    z-index: -2;
 }
 
 /* overlay */
@@ -44,14 +43,13 @@ html, body {
     position: fixed;
     inset: 0;
     background: rgba(255,255,255,0.45);
-    z-index: -5;
+    z-index: -1;
 }
 
 #main, #wrap {
     width: 100%;
     height: 100%;
     position: relative;
-    z-index: 1;
 }
 
 #canvas {
@@ -60,7 +58,7 @@ html, body {
     display: block;
 }
 
-/* 💌 SMS CARD */
+/* 💌 Wish card */
 #wish-box {
     position: absolute;
     top: 7%;
@@ -70,31 +68,19 @@ html, body {
     max-width: 360px;
     padding: 18px 16px;
     text-align: center;
-
-    background: linear-gradient(
-        135deg,
-        rgba(255,255,255,0.85),
-        rgba(255,230,240,0.9)
-    );
-
+    background: linear-gradient(135deg,#fff,#ffe6f0);
     border-radius: 18px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
     display: none;
     z-index: 5;
 }
 
 #wish-box span {
     display: block;
-    font-size: 1rem;
     margin: 6px 0;
-    color: #222;
 }
 
 #wish-box span:first-child {
-    font-size: 1.1rem;
     font-weight: 600;
     color: #b4004e;
 }
@@ -105,24 +91,15 @@ html, body {
     bottom: 6%;
     width: 100%;
     text-align: center;
-    font-size: 1rem;
     z-index: 5;
-    color: #222;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🎥 BACKGROUND VIDEO -->
-<video
-    id="bg-video"
-    muted
-    loop
-    playsinline
-    webkit-playsinline
-    preload="auto"
->
+<!-- 🎥 video (NO autoplay) -->
+<video id="bg-video" muted loop playsinline preload="auto">
     <source src="./main/video.mp4" type="video/mp4">
 </video>
 
@@ -135,7 +112,6 @@ html, body {
 
 <div id="wrap">
 
-<!-- 💌 Wish -->
 <div id="wish-box">
     <span>My beautiful wife 💞</span>
     <span>Happy Birthday 🎈</span>
@@ -145,7 +121,6 @@ html, body {
     <span>I will always love you 🥺❤️</span>
 </div>
 
-<!-- ⏱ Clock -->
 <div id="clock-box">
     <span id="clock">577 days 0 hours 0 minutes 0 seconds</span>
 </div>
@@ -155,24 +130,21 @@ html, body {
 </div>
 
 <script>
-/* 🔊 audio + 🎥 video force play on first touch */
-function forcePlayMedia() {
-    const v = document.getElementById("bg-video");
-    const a = document.getElementById("myAudio");
+/* ✅ ONE TAP = audio + video start */
+let mediaStarted = false;
 
-    if (v && v.paused) {
-        v.play().catch(()=>{});
-    }
-    if (a && a.paused) {
-        a.play().catch(()=>{});
-    }
+function startMedia() {
+    if (mediaStarted) return;
+    mediaStarted = true;
 
-    document.removeEventListener("click", forcePlayMedia);
-    document.removeEventListener("touchstart", forcePlayMedia);
+    const video = document.getElementById("bg-video");
+    const audio = document.getElementById("myAudio");
+
+    video.muted = true;
+    video.play().catch(()=>{});
+
+    audio.play().catch(()=>{});
 }
-
-document.addEventListener("click", forcePlayMedia);
-document.addEventListener("touchstart", forcePlayMedia);
 </script>
 
 <script>
@@ -189,27 +161,10 @@ document.addEventListener("touchstart", forcePlayMedia);
     var sy = height / 680;
 
     var opts = {
-        seed: {
-            x: width / 2 - 20,
-            color: "rgb(190, 26, 37)",
-            scale: 2
-        },
-        branch: [
-            [535*sx,680*sy,570*sx,250*sy,500*sx,200*sy,30,100,[
-                [540*sx,500*sy,455*sx,417*sy,340*sx,400*sy,13,100],
-                [550*sx,445*sy,600*sx,356*sy,680*sx,345*sy,12,100]
-            ]]
-        ],
-        bloom: {
-            num: 650,
-            width: width,
-            height: height
-        },
-        footer: {
-            width: width,
-            height: 5,
-            speed: 10
-        }
+        seed: { x: width/2-20, color:"rgb(190,26,37)", scale:2 },
+        branch: [[535*sx,680*sy,570*sx,250*sy,500*sx,200*sy,30,100]],
+        bloom: { num:650, width:width, height:height },
+        footer: { width:width, height:5, speed:10 }
     };
 
     var tree = new Tree(canvas[0], width, height, opts);
@@ -217,7 +172,8 @@ document.addEventListener("touchstart", forcePlayMedia);
     var foot = tree.footer;
     var hold = 1;
 
-    canvas.on("click", function () {
+    canvas.on("click touchstart", function () {
+        startMedia();   // 🔥 FIX
         hold = 0;
     });
 
@@ -229,7 +185,7 @@ document.addEventListener("touchstart", forcePlayMedia);
             $await(Jscex.Async.sleep(10));
         }
         while (seed.canMove()) {
-            seed.move(0, 2);
+            seed.move(0,2);
             foot.draw();
             $await(Jscex.Async.sleep(10));
         }
