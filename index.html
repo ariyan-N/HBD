@@ -2,221 +2,168 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>HBD Love</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<link rel="stylesheet" href="./file/default.css">
-<script src="./file/jquery.min.js"></script>
-<script src="./file/jscex.min.js"></script>
-<script src="./file/jscex-parser.js"></script>
-<script src="./file/jscex-jit.js"></script>
-<script src="./file/jscex-builderbase.min.js"></script>
-<script src="./file/jscex-async.min.js"></script>
-<script src="./file/jscex-async-powerpack.min.js"></script>
-<script src="./file/functions.js"></script>
-<script src="./file/love.js"></script>
+<title>Happy Birthday</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-html, body{
+html,body{
   margin:0;
   padding:0;
-  width:100%;
   height:100%;
+  background:#000;
   overflow:hidden;
-  background:black;
-  font-family: system-ui, sans-serif;
+  font-family:"Segoe UI",sans-serif;
 }
 
-/* 🎥 Background video */
-#bg-video{
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  opacity:0.18;
-  z-index:-2;
-}
-
-/* overlay */
-#overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(255,255,255,0.45);
-  z-index:-1;
-}
-
-#main,#wrap{
-  width:100%;
-  height:100%;
-  position:relative;
-}
-
-#canvas{
-  width:100%;
-  height:100%;
-  display:block;
-}
-
-/* 💌 Wish card (Secret Surprise style) */
-#wish-box{
+/* ================= TREE WRAPPER ================= */
+#treeWrapper{
   position:absolute;
-  top:8%;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:360px;
-  padding:32px;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform 1s ease;
+}
+
+/* tree down position */
+.tree-moved{
+  transform:translateY(50vh);
+}
+
+/* ================= MESSAGE ================= */
+#messageContainer{
+  position:absolute;
+  top:6%;
+  width:100%;
   text-align:center;
-  background:rgba(0,0,0,.6);
-  backdrop-filter: blur(14px);
-  border-radius:22px;
-  color:white;
+  padding:0 20px;
+  color:#fff;
+  font-size:22px;
+  line-height:1.6;
   display:none;
-  z-index:5;
-  animation:fade .8s ease;
 }
 
-#wish-box span{
-  display:block;
-  margin:6px 0;
-  font-size:1rem;
+.cursor{
+  display:inline-block;
+  animation:blink .7s infinite;
+  font-weight:bold;
 }
 
-#wish-box span:first-child{
-  font-weight:600;
-  font-size:1.1rem;
-  color:#ff4ecd;
+@keyframes blink{
+  50%{opacity:0;}
 }
 
-/* ⏱ Clock */
-#clock-box{
-  position:absolute;
-  bottom:6%;
-  width:100%;
-  text-align:center;
-  z-index:5;
+/* ================= MAIL ================= */
+#mailIcon{
+  position:fixed;
+  top:15px;
+  right:18px;
+  font-size:28px;
+  cursor:pointer;
+  z-index:999;
 }
 
-/* Button animation */
-@keyframes fade{
-  from{opacity:0; transform:scale(.95);}
-  to{opacity:1; transform:scale(1);}
+#mailBox{
+  position:fixed;
+  top:60px;
+  right:18px;
+  width:300px;
+  background:#fff;
+  border-radius:12px;
+  padding:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,.35);
+  display:none;
+  z-index:999;
+}
+
+#mailBox h3{
+  margin:0 0 10px;
+  font-size:18px;
+  border-bottom:1px solid #ddd;
+  padding-bottom:6px;
+  color:#222;
+}
+
+#mailBox p{
+  margin:0 0 10px;
+  font-size:15px;
+  line-height:1.4;
+  color:#333;
 }
 </style>
 </head>
 
 <body>
 
-<!-- BACKGROUND VIDEO -->
-<video id="bg-video" autoplay muted loop playsinline>
-  <source src="./main/video.mp4" type="video/mp4">
-</video>
+<!-- ================= MAIL ICON ================= -->
+<div id="mailIcon">💌</div>
 
-<div id="overlay"></div>
-
-<div id="main">
-  <audio id="myAudio">
-    <source src="aud.mp3" type="audio/mp3">
-  </audio>
-
-  <div id="wrap">
-
-    <!-- 🎁 Wish card -->
-    <div id="wish-box">
-      <span>My beautiful wife 💞</span>
-      <span>Happy Birthday 🎈</span>
-      <span>May Allah bless you 🍀</span>
-      <span>And give you many happiness 💕</span>
-      <span>I loved you ❤️</span>
-      <span>I will always love you 🥺❤️</span>
-    </div>
-
-    <!-- ⏱ Clock -->
-    <div id="clock-box">
-      <span id="clock">577 days 0 hours 0 minutes 0 seconds</span>
-    </div>
-
-    <!-- 🌳 Tree canvas -->
-    <canvas id="canvas"></canvas>
-
-  </div>
+<div id="mailBox">
+  <h3>Messages</h3>
+  <p>Some feelings don’t ask for a place—<br>they just stay.</p>
+  <p>My wish is simple—<br>peace in your life, always.<br>even if I’m not part of it.</p>
+  <p>Some people don’t stay in our lives,<br>but they stay in our hearts—quietly.</p>
+  <p>Some feelings survive distance.</p>
 </div>
 
+<!-- ================= MESSAGE ================= -->
+<div id="messageContainer">
+  <span id="typedText"></span><span class="cursor">|</span>
+</div>
+
+<!-- ================= TREE (UNCHANGED) ================= -->
+<div id="treeWrapper">
+  <!-- এখানে তোমার existing tree animation HTML থাকবে -->
+  <!-- আমি placeholder দিয়েছি -->
+  <img src="tree.png" alt="Tree" style="max-width:90%;max-height:90%;">
+</div>
+
+<!-- ================= AUDIO (UNCHANGED) ================= -->
+<audio id="bgMusic" src="music.mp3"></audio>
+
 <script>
-(function(){
+/* ========== MAIL TOGGLE ========== */
+document.getElementById("mailIcon").onclick=function(){
+  const box=document.getElementById("mailBox");
+  box.style.display=box.style.display==="block"?"none":"block";
+};
 
-  var canvas = $('#canvas');
-  var width = window.innerWidth;
-  var height = window.innerHeight;
+/* ========== TYPING MESSAGE ========== */
+const message=`Hey ma’am,
+Did you know that some people grow into better versions of themselves,
+and some remain important—even without contact.
+Wishing you peace, health, and happiness ahead.
+Just wanted you to know—today matters.
+Take care.`;
 
-  canvas.attr("width", width);
-  canvas.attr("height", height);
+let i=0;
+function typeEffect(){
+  if(i<message.length){
+    document.getElementById("typedText").innerHTML+=message.charAt(i);
+    i++;
+    setTimeout(typeEffect,40);
+  }
+}
 
-  var sx = width/1100;
-  var sy = height/680;
+/* ========== CALL AFTER TREE COMPLETE ========== */
+function afterTreeComplete(){
+  document.getElementById("treeWrapper").classList.add("tree-moved");
+  setTimeout(()=>{
+    document.getElementById("messageContainer").style.display="block";
+    typeEffect();
+  },1000);
+}
 
-  var opts = {
-    seed:{x:width/2-20,color:"rgb(190,26,37)",scale:2},
-    branch:[[535*sx,680*sy,570*sx,250*sy,500*sx,200*sy,30,100]],
-    bloom:{num:650,width:width,height:height},
-    footer:{width:width,height:5,speed:10}
-  };
-
-  var tree = new Tree(canvas[0],width,height,opts);
-  var seed = tree.seed;
-  var foot = tree.footer;
-  var hold = 1;
-
-  /* 🔥 Big canvas click for animation + audio */
-  canvas.on("click touchstart",function(){
-    document.getElementById("myAudio").play();
-    hold = 0;
-  });
-
-  var seedAnimate = eval(Jscex.compile("async",function(){
-    seed.draw();
-    while(hold)$await(Jscex.Async.sleep(10));
-    while(seed.canScale()){
-      seed.scale(0.95);
-      $await(Jscex.Async.sleep(10));
-    }
-    while(seed.canMove()){
-      seed.move(0,2);
-      foot.draw();
-      $await(Jscex.Async.sleep(10));
-    }
-  }));
-
-  var growAnimate = eval(Jscex.compile("async",function(){
-    do{
-      tree.grow();
-      $await(Jscex.Async.sleep(10));
-    }while(tree.canGrow());
-  }));
-
-  var flowAnimate = eval(Jscex.compile("async",function(){
-    do{
-      tree.flower(2);
-      $await(Jscex.Async.sleep(10));
-    }while(tree.canFlower());
-  }));
-
-  var showWish = eval(Jscex.compile("async",function(){
-    $("#wish-box").fadeIn(900);
-  }));
-
-  var runAsync = eval(Jscex.compile("async",function(){
-    $await(seedAnimate());
-    $await(growAnimate());
-    $await(flowAnimate());
-    $await(showWish());
-  }));
-
-  runAsync().start();
-
-})();
+/* ===== DEMO AUTO CALL =====
+   👉 তোমার real project এ এইটা remove করবে
+   👉 tree animation শেষ হলে
+      afterTreeComplete();
+      call করলেই হবে
+*/
+setTimeout(afterTreeComplete,5000);
 </script>
 
 </body>
